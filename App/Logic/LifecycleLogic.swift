@@ -68,7 +68,7 @@ extension Logic {
         }
 
         // refresh the analytics token if expired, silently catching errors so that the exposure detection can be performed
-        try? context.awaitDispatch(Logic.Analytics.RegenerateAnalyticsTokenIfExpired())
+        try? context.awaitDispatch(Logic.Analytics.RefreshAnalyticsTokenIfExpired())
 
         // update analytics event without exposure opportunity window if expired
         try context.awaitDispatch(Logic.Analytics.UpdateEventWithoutExposureOpportunityWindowIfNeeded())
@@ -116,7 +116,7 @@ extension Logic {
         try context.awaitDispatch(ForceUpdate.CheckAppVersion())
 
         // refresh the analytics token if expired, silently catching errors so that the exposure detection can be performed
-        try? context.awaitDispatch(Logic.Analytics.RegenerateAnalyticsTokenIfExpired())
+        try? context.awaitDispatch(Logic.Analytics.RefreshAnalyticsTokenIfExpired())
 
         // update analytics event without exposure opportunity window if expired
         try context.awaitDispatch(Logic.Analytics.UpdateEventWithoutExposureOpportunityWindowIfNeeded())
@@ -198,7 +198,7 @@ extension Logic {
         try context.awaitDispatch(Logic.ExposureDetection.ClearOutdatedResults(now: context.dependencies.now()))
 
         // refresh the analytics token if expired, silently catching errors so that the exposure detection can be performed
-        try? context.awaitDispatch(Logic.Analytics.RegenerateAnalyticsTokenIfExpired())
+        try? context.awaitDispatch(Logic.Analytics.RefreshAnalyticsTokenIfExpired())
 
         // update analytics event without exposure opportunity window if expired
         try context.awaitDispatch(Logic.Analytics.UpdateEventWithoutExposureOpportunityWindowIfNeeded())
