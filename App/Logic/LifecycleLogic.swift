@@ -62,13 +62,22 @@ extension Logic {
         // Removes notifications as the user has opened the app
         context.dispatch(Logic.CovidStatus.RemoveRiskReminderNotification())
 
-        guard !isFirstLaunch else {
-          // Nothing else to do if it's the first launch
+        guard context.dependencies.application.isForeground else {
+          // Background sessions are handled in `HandleExposureDetectionBackgroundTask`
           return
         }
 
-        guard context.dependencies.application.isForeground else {
-          // Background sessions are handled in `HandleExposureDetectionBackgroundTask`
+        // refresh the analytics token if expired, silently catching errors so that the exposure detection can be performed
+        try? context.awaitDispatch(Logic.Analytics.RegenerateAnalyticsTokenIfExpired())
+
+        // update analytics event without exposure opportunity window if expired
+        try context.awaitDispatch(Logic.Analytics.UpdateEventWithoutExposureOpportunityWindowIfNeeded())
+
+        // update analytics dummy opportunity window if expired
+        try context.awaitDispatch(Logic.Analytics.UpdateDummyTrafficOpportunityWindowIfExpired())
+
+        guard !isFirstLaunch else {
+          // Nothing else to do if it's the first launch
           return
         }
 
@@ -105,6 +114,15 @@ extension Logic {
 
         // check whether to show force update
         try context.awaitDispatch(ForceUpdate.CheckAppVersion())
+
+        // refresh the analytics token if expired, silently catching errors so that the exposure detection can be performed
+        try? context.awaitDispatch(Logic.Analytics.RegenerateAnalyticsTokenIfExpired())
+
+        // update analytics event without exposure opportunity window if expired
+        try context.awaitDispatch(Logic.Analytics.UpdateEventWithoutExposureOpportunityWindowIfNeeded())
+
+        // update analytics dummy opportunity window if expired
+        try context.awaitDispatch(Logic.Analytics.UpdateDummyTrafficOpportunityWindowIfExpired())
 
         // Perform exposure detection if necessary
         context.dispatch(Logic.ExposureDetection.PerformExposureDetectionIfNecessary(type: .foreground))
@@ -178,6 +196,15 @@ extension Logic {
       func sideEffect(_ context: SideEffectContext<AppState, AppDependencies>) throws {
         // clears `PositiveExposureResults` older than 14 days from the `ExposureDetectionState`
         try context.awaitDispatch(Logic.ExposureDetection.ClearOutdatedResults(now: context.dependencies.now()))
+
+        // refresh the analytics token if expired, silently catching errors so that the exposure detection can be performed
+        try? context.awaitDispatch(Logic.Analytics.RegenerateAnalyticsTokenIfExpired())
+
+        // update analytics event without exposure opportunity window if expired
+        try context.awaitDispatch(Logic.Analytics.UpdateEventWithoutExposureOpportunityWindowIfNeeded())
+
+        // update analytics dummy opportunity window if expired
+        try context.awaitDispatch(Logic.Analytics.UpdateDummyTrafficOpportunityWindowIfExpired())
 
         // updates the ingestion dummy traffic opportunity window if it expired
         try context.awaitDispatch(Logic.DataUpload.UpdateDummyTrafficOpportunityWindowIfExpired())

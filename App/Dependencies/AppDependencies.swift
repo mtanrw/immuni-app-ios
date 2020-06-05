@@ -35,7 +35,8 @@ final class AppDependencies: NSObject, SideEffectDependencyContainer, Navigation
 
   let uniformDistributionGenerator: UniformDistributionGenerator.Type
   let exponentialDistributionGenerator: ExponentialDistributionGenerator.Type
-  let tokenGenerator: DeviceTokenGenerator
+  let deviceTokenGenerator: DeviceTokenGenerator
+  let analyticsTokenGenerator: AnalyticsTokenGenerator
   let now: () -> Date
 
   // MARK: Module Managers
@@ -91,10 +92,15 @@ final class AppDependencies: NSObject, SideEffectDependencyContainer, Navigation
     self.now = Date.init
 
     #if targetEnvironment(simulator)
-      self.tokenGenerator = MockDeviceTokenGenerator(result: .success("this_is_a_simulator"))
+      self.deviceTokenGenerator = MockDeviceTokenGenerator(result: .success("this_is_a_simulator"))
     #else
-      self.tokenGenerator = DCDevice.current
+      self.deviceTokenGenerator = DCDevice.current
     #endif
+
+    self.analyticsTokenGenerator = ImmuniAnalyticsTokenGenerator(
+      now: self.now,
+      uniformDistributionGenerator: self.uniformDistributionGenerator
+    )
 
     #if canImport(DebugMenu)
       self.debugMenu = DebugMenu()
@@ -118,7 +124,8 @@ final class AppDependencies: NSObject, SideEffectDependencyContainer, Navigation
     exposureDetectionExecutor: ExposureDetectionExecutor,
     uniformDistributionGenerator: UniformDistributionGenerator.Type,
     exponentialDistributionGenerator: ExponentialDistributionGenerator.Type,
-    tokenGenerator: DeviceTokenGenerator,
+    deviceTokenGenerator: DeviceTokenGenerator,
+    analyticsTokenGenerator: AnalyticsTokenGenerator,
     now: @escaping () -> Date
   ) {
     self.navigator = navigator
@@ -134,7 +141,8 @@ final class AppDependencies: NSObject, SideEffectDependencyContainer, Navigation
     self.uniformDistributionGenerator = uniformDistributionGenerator
     self.exponentialDistributionGenerator = exponentialDistributionGenerator
     self.now = now
-    self.tokenGenerator = tokenGenerator
+    self.deviceTokenGenerator = deviceTokenGenerator
+    self.analyticsTokenGenerator = analyticsTokenGenerator
 
     #if canImport(DebugMenu)
       self.debugMenu = DebugMenu()

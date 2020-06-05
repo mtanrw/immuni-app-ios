@@ -34,9 +34,9 @@ public extension String {
   }
 
   /// Returns a string of random hexadecimal digits with the given `size`
-  static func random(size: Int) -> Self {
-    let requiredBytesOfRandomness = size / 2 + 1
+  static func random(length: Int) -> Self {
+    let requiredBytesOfRandomness = length / 2 + 1
     let randomData = Data.randomData(with: requiredBytesOfRandomness)
-    return String(randomData.hexString.prefix(size))
+    return String(randomData.hexString.prefix(length))
   }
 }
