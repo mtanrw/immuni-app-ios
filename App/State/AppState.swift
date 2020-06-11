@@ -24,6 +24,7 @@ struct AppState: State, Codable {
     case user
     case exposureDetection
     case analytics
+    case configuration
     case ingestion
     case faq
   }
